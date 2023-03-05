@@ -54,3 +54,17 @@ async def analyzeORA(input: CPInput):
     geneSet = dicted_input['geneSet']
     data = cpAnalysis.analyze(geneSetType, geneSet)
     return data
+
+
+@app.post("/cp")
+async def analyzeORA(input: CPInput):
+    dicted_input = dict(input)
+    geneSetType = dicted_input['geneSetType']
+    geneSet = dicted_input['geneSet']
+    data = cpAnalysis.analyze(geneSetType, geneSet)
+    return data
+
+
+@app.get("/ok")
+async def root():
+    return {"message": "Hello World"}
