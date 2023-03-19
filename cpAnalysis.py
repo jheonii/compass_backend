@@ -3,7 +3,7 @@ from scipy.stats import hypergeom
 import json
 import re
 
-q3000 = pd.read_csv('3000.txt', sep="\t")
+q3000 = pd.read_csv('3000.csv')
 ccg = pd.read_csv('ccg.csv')
 alias_data = pd.read_csv('gdac_entrez.csv')
 
@@ -52,7 +52,7 @@ def analyze(geneSetType, geneSet):
         ccgList = ccg.iloc[:, 0].tolist()
         intersection = list(set(geneSet_list) & set(ccgList))
         pvalue = (round(hypergeom.sf(len(intersection)-1, 20501,
-                                     len(geneSet_list), len(ccgList)), 9))
+                                     len(geneSet_list), len(ccgList)), 10))
         size = len(geneSet_list)
         overlap = len(intersection)
         intersection_str = ';'.join(str(e) for e in intersection)
