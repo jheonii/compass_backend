@@ -6,6 +6,10 @@ import re
 q005 = pd.read_csv('0.05.csv')
 q001 = pd.read_csv('0.01.csv')
 q0001 = pd.read_csv('0.001.csv')
+# STEP.1 pathway DB
+pathwayDB = pd.read_csv("GSEC.csv")
+pathwayDB = pathwayDB.dropna()
+pathwayDB = pathwayDB.fillna(0)
 
 
 def analyze(geneSetType, geneSet, qValueCutoff, inputCancerLevel):
@@ -17,7 +21,7 @@ def analyze(geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     if(geneSetType == 'int'):
         geneSet_list = [int(s) for s in geneSet_list]
 
-    # STEP 0.fdr matrix
+    # STEP 1.fdr matrix
     lenGL = len(geneSet_list)-1
     q005_selec = q005.iloc[:, lenGL]
     q001_selec = q001.iloc[:, lenGL]
@@ -27,11 +31,6 @@ def analyze(geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     new_fdr['q001'] = q001_selec
     new_fdr['q0001'] = q0001_selec
     new_fdr = new_fdr.fillna(1)
-
-    # STEP.1 pathway DB
-    pathwayDB = pd.read_csv("GSEC.csv")
-    pathwayDB = pathwayDB.dropna()
-    pathwayDB = pathwayDB.fillna(0)
 
     # STEP.2 gene symbol or entrez ID
     if(geneSetType == 'int'):
