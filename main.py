@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import Optional
 import oraAnalysis
 import cpAnalysis
-
+import test
 
 app = FastAPI()
 
@@ -53,4 +53,10 @@ async def analyzeORA(input: CPInput):
     geneSetType = dicted_input['geneSetType']
     geneSet = dicted_input['geneSet']
     data = cpAnalysis.analyze(geneSetType, geneSet)
+    return data
+
+
+@app.get("/test")
+async def testAnalyze():
+    data = test.analyze()
     return data

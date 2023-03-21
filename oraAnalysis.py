@@ -12,6 +12,7 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
 
     geneSet = re.sub(r"\s", "", geneSet)
     geneSet_list = geneSet.split(',')
+    geneSet_list = [v for v in geneSet_list if v]
 
     if(geneSetType == 'int'):
         geneSet_list = [int(s) for s in geneSet_list]
