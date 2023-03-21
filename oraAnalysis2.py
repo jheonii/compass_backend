@@ -29,7 +29,7 @@ def analyze(geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     new_fdr = new_fdr.fillna(1)
 
     # STEP.1 pathway DB
-    pathwayDB = pd.read_csv("CPDB.csv")
+    pathwayDB = pd.read_csv("GSEC.csv")
     pathwayDB = pathwayDB.dropna()
     pathwayDB = pathwayDB.fillna(0)
 
