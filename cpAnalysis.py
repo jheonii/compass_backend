@@ -24,8 +24,9 @@ def analyze(geneSetType, geneSet):
     if(geneSetType == 'int'):
         ccgList = ccg.iloc[:, 1].tolist()
         intersection = list(set(geneSet_list) & set(ccgList))
-        pvalue = (round(hypergeom.sf(len(intersection)-1, 20501,
-                                     len(geneSet_list), len(ccgList)), 9))
+        pvalue = hypergeom.sf(len(intersection)-1, 20501,
+                              len(geneSet_list), len(ccgList))
+        selected_pvalue_string = f"{pvalue:.2E}"
         size = len(geneSet_list)
         overlap = len(intersection)
         intersection_str = ';'.join(str(e) for e in intersection)
@@ -51,8 +52,9 @@ def analyze(geneSetType, geneSet):
     if(geneSetType == 'str'):
         ccgList = ccg.iloc[:, 0].tolist()
         intersection = list(set(geneSet_list) & set(ccgList))
-        pvalue = (round(hypergeom.sf(len(intersection)-1, 20501,
-                                     len(geneSet_list), len(ccgList)), 10))
+        pvalue = hypergeom.sf(len(intersection)-1, 20501,
+                              len(geneSet_list), len(ccgList))
+        selected_pvalue_string = f"{pvalue:.2E}"
         size = len(geneSet_list)
         overlap = len(intersection)
         intersection_str = ';'.join(str(e) for e in intersection)
@@ -78,6 +80,7 @@ def analyze(geneSetType, geneSet):
     # result table
     result_table = {
         'pvalue': pvalue,
+        'pvalue_string': selected_pvalue_string,
         'size': size,
         'overlap': overlap,
         'entrezId': entrezId,
