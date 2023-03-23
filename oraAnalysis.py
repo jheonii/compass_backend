@@ -30,7 +30,6 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     new_fdr['q005'] = q005_selec
     new_fdr['q001'] = q001_selec
     new_fdr['q0001'] = q0001_selec
-    print(new_fdr)
     # new_fdr = new_fdr.fillna(1)
 
     # STEP.1 pathway DB
@@ -110,6 +109,8 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     result_table = result_table[result_table['overlap'] > 4]
     result_table = result_table[result_table['pvalue'] < 0.05]
     result_table = result_table[result_table['qvalue_level'] <= qValueCutoff]
+    countTB = result_table['cancerLevel'].value_counts()
+    countTB_json = countTB.to_json()
     result_table = result_table[result_table['cancerLevel']
                                 == inputCancerLevel]
     # result_table = result_table.sort_values(by=['pvalue'])
@@ -119,4 +120,5 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     # return result
     return {
         "data": result_json,
+        "countDB": countTB_json
     }
