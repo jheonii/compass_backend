@@ -56,7 +56,6 @@ async def analyzeORA(input: CPInput):
     return data
 
 
-# @app.get("/test")
-# async def testAnalyze():
-#     data = test.analyze()
-#     return data
+@app.get("/test")
+async def testAnalyze():
+    return 'data'

@@ -9,7 +9,7 @@ q0001 = pd.read_csv('0.001.csv')
 
 
 def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
-
+    print(inputCancerLevel)
     geneSet = re.sub(r"\s", "", geneSet)
     geneSet_list = geneSet.split(',')
     geneSet_list = [v for v in geneSet_list if v]
