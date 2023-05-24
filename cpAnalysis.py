@@ -64,12 +64,15 @@ def analyze(geneSetType, geneSet):
         'entrezId': entrezId,
         'symbol': symbol,
         'cancerLevel': cancerLevel,
-        'total' : 100,
-        'intersec' : 47,
     }
 
     result_json = json.dumps(result_table)
     # return result
     return {
         "data": result_json,
+        "matchInfo" : {
+            "total" : len(geneSet),
+            "intersec" : len(geneSet_list),
+            "percent" : (len(geneSet_list)/len(geneSet)) * 100
+        }
     }
