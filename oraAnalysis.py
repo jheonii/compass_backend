@@ -1,7 +1,7 @@
 import pandas as pd
 from scipy.stats import hypergeom
 import re
-
+import numpy as np
 
 q005 = pd.read_csv('0.05.csv')
 q001 = pd.read_csv('0.01.csv')
@@ -117,10 +117,18 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     result_table = result_table[result_table['overlap'] > 1]
     result_table = result_table[result_table['pvalue'] < 0.05]
     result_table = result_table[result_table['qvalue_level'] <= qValueCutoff]
+    
     countTB = result_table['cancerLevel'].value_counts()
-    countTB_json = countTB.to_json()
+    countTB_df = pd.DataFrame(countTB)
+    countTB_df['level'] = countTB_df.index
+    countTB_lv1 = countTB_df[countTB_df['level'] == 1]
+    countTB_lv2 = countTB_df[countTB_df['level'] == 2]
+    countTB_lv3 = countTB_df[countTB_df['level'] == 3]
+    countTB_lv4 = countTB_df[countTB_df['level'] == 4]
+
     result_table = result_table[result_table['cancerLevel']
                                 == inputCancerLevel]
+    print(result_table)
     # result_table = result_table.sort_values(by=['pvalue'])
     # print(result_table.head(10))
     result_json = result_table.transpose().to_json()
@@ -128,7 +136,16 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     # return result
     return {
         "data": result_json,
-        "countDB": countTB_json,
+        "countDB": {
+            # "lv1" : int(countTB_lv1['cancerLevel'].values[0]),    
+            # "lv2" : int(countTB_lv2['cancerLevel'].values[0]),    
+            # "lv3" : int(countTB_lv3['cancerLevel'].values[0]),
+            # "lv4" : int(countTB_lv4['cancerLevel'].values[0])
+            "lv1" : 10,
+            "lv2" : 10,
+            "lv3" : 10,
+            "lv4" : 10,
+        },
         "matchInfo" : {
             "total" : len(geneSet),
             "intersec" : len(geneSet_list),
