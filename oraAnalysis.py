@@ -6,20 +6,28 @@ import re
 q005 = pd.read_csv('0.05.csv')
 q001 = pd.read_csv('0.01.csv')
 q0001 = pd.read_csv('0.001.csv')
+alias_data = pd.read_csv('gdac_entrez.csv')
 
 
 def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
-    print(inputCancerLevel)
+
     geneSet = re.sub(r"\s", "", geneSet)
-    geneSet_list = geneSet.split(',')
-    geneSet_list = [v for v in geneSet_list if v]
+    geneSet = geneSet.split(',')
 
     if(geneSetType == 'str'):
-        alias_data = pd.read_csv('gdac_entrez.csv')
         alias_data2 = alias_data.set_index(alias_data['symbol'])
-        geneSet_list = alias_data2.loc[geneSet_list, 'entrez'].to_list()
+        intersec = list(set(alias_data['symbol'].to_list()) & set(geneSet))
 
-    geneSet_list = [int(v) for v in geneSet_list]
+    if(geneSetType == 'int'):
+        alias_data2 = alias_data.set_index(alias_data['entrez'])
+        geneSet_list = [int(v) for v in geneSet]
+        intersec = list(set(alias_data['entrez'].to_list()) & set(geneSet_list))
+        
+    geneSet_list = alias_data2.loc[intersec, 'entrez'].to_list()
+
+    print(geneSet_list)
+    print(len(geneSet_list),'gensenlist')
+    print(len(geneSet),'total')
 
     # STEP 0.fdr matrix
     lenGL = len(geneSet_list)-1
@@ -58,7 +66,7 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
         selected_list = [int(s) for s in selected_genes]
         intersection = list(set(selected_list) & set(geneSet_list))
         selected_pvalue = (hypergeom.sf(
-            len(intersection)-1, 20501, len(geneSet_list), len(selected_list)))
+            len(intersection)-1, 27214, len(geneSet_list), len(selected_list)))
         pvalue.append(selected_pvalue)
         selected_pvalue_string = f"{selected_pvalue:.2E}"
         pvalue_string.append(selected_pvalue_string)
@@ -106,7 +114,7 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     result_table['overlap'] = overlap
     result_table['cancerLevel'] = cancerLevel
 
-    result_table = result_table[result_table['overlap'] > 4]
+    result_table = result_table[result_table['overlap'] > 1]
     result_table = result_table[result_table['pvalue'] < 0.05]
     result_table = result_table[result_table['qvalue_level'] <= qValueCutoff]
     countTB = result_table['cancerLevel'].value_counts()
@@ -120,5 +128,9 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     # return result
     return {
         "data": result_json,
-        "countDB": countTB_json
+        "countDB": countTB_json,
+        "matchInfo" : {
+            "total" : len(geneSet),
+            "intersec" : len(geneSet_list),
+        }
     }
