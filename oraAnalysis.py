@@ -132,6 +132,6 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
         "matchInfo" : {
             "total" : len(geneSet),
             "intersec" : len(geneSet_list),
-            "percent" : (len(geneSet_list)/len(geneSet)) * 100
+            "percent" : round((len(geneSet_list)/len(geneSet)) * 100)
         }
     }
