@@ -46,7 +46,7 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     pathwayDB = pathwayDB.fillna(0)
 
     # STEP.2 gene symbol or entrez ID
-    pathwayDB_sort = pathwayDB.iloc[:, [1, 2, 3, 7]]
+    pathwayDB_sort = pathwayDB.iloc[:,:]
     selected_genes = pathwayDB_sort.iloc[:, 1][0].split(';')
 
     # STEP.3 hypergeom
