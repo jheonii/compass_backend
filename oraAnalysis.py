@@ -118,33 +118,52 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     result_table = result_table[result_table['pvalue'] < 0.05]
     result_table = result_table[result_table['qvalue_level'] <= qValueCutoff]
     
+    
+    #count DB
     countTB = result_table['cancerLevel'].value_counts()
     countTB_df = pd.DataFrame(countTB)
     countTB_df['level'] = countTB_df.index
+    
+    print(countTB_df)
     countTB_lv1 = countTB_df[countTB_df['level'] == 1]
     countTB_lv2 = countTB_df[countTB_df['level'] == 2]
     countTB_lv3 = countTB_df[countTB_df['level'] == 3]
     countTB_lv4 = countTB_df[countTB_df['level'] == 4]
+    
+    if(countTB_lv1.empty):
+        lv1_value = 0
+    else:
+        lv1_value = int(countTB_lv1['cancerLevel'].values[0])
 
+    if(countTB_lv2.empty):
+        lv2_value = 0
+    else:
+        lv2_value = int(countTB_lv2['cancerLevel'].values[0])
+
+    if(countTB_lv3.empty):
+        lv3_value = 0
+    else:
+        lv3_value = int(countTB_lv3['cancerLevel'].values[0])
+
+    if(countTB_lv4.empty):
+        lv4_value = 0
+    else:
+        lv4_value = int(countTB_lv4['cancerLevel'].values[0])
+    
+    
+    
     result_table = result_table[result_table['cancerLevel']
                                 == inputCancerLevel]
-    print(result_table)
-    # result_table = result_table.sort_values(by=['pvalue'])
-    # print(result_table.head(10))
     result_json = result_table.transpose().to_json()
 
     # return result
     return {
         "data": result_json,
         "countDB": {
-            # "lv1" : int(countTB_lv1['cancerLevel'].values[0]),    
-            # "lv2" : int(countTB_lv2['cancerLevel'].values[0]),    
-            # "lv3" : int(countTB_lv3['cancerLevel'].values[0]),
-            # "lv4" : int(countTB_lv4['cancerLevel'].values[0])
-            "lv1" : 10,
-            "lv2" : 10,
-            "lv3" : 10,
-            "lv4" : 10,
+            "lv1" : lv1_value,
+            "lv2" : lv2_value,
+            "lv3" : lv3_value,
+            "lv4" : lv4_value,
         },
         "matchInfo" : {
             "total" : len(geneSet),
