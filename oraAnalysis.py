@@ -66,7 +66,7 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
         selected_list = [int(s) for s in selected_genes]
         intersection = list(set(selected_list) & set(geneSet_list))
         selected_pvalue = (hypergeom.sf(
-            len(intersection)-1, 27214, len(geneSet_list), len(selected_list)))
+            len(intersection)-1, 27214-len(selected_list), len(geneSet_list), len(selected_list)))
         pvalue.append(selected_pvalue)
         selected_pvalue_string = f"{selected_pvalue:.2E}"
         pvalue_string.append(selected_pvalue_string)
