@@ -31,7 +31,7 @@ def analyze(geneSetType, geneSet):
 
     ccgList = ccg.iloc[:, 1].tolist()
     intersection = list(set(geneSet_list) & set(ccgList))
-    pvalue = hypergeom.sf(len(intersection)-1, 27214,
+    pvalue = hypergeom.sf(len(intersection)-1, 27214-len(geneSet_list),
                           len(geneSet_list), len(ccgList))
     selected_pvalue_string = f"{pvalue:.2E}"
     size = len(geneSet_list)
