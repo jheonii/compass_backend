@@ -1,5 +1,7 @@
 import pandas as pd
 from scipy.stats import hypergeom
+import statsmodels.api as sm
+import statsmodels
 import re
 import numpy as np
 
@@ -59,6 +61,9 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     size = []
     overlap = []
     cancerLevel = []
+    q_005 = []
+    q_001 = []
+    q_0001 = []
 
     for id in range(len(pathwayDB)):
         selected_genes = pathwayDB_sort.iloc[id, 2]
@@ -82,32 +87,32 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
         fdr005 = new_fdr.iloc[gsize, 0]
         fdr001 = new_fdr.iloc[gsize, 1]
         fdr0001 = new_fdr.iloc[gsize, 2]
-
-        if selected_pvalue < fdr0001:
-            selected_qval = fdr0001
-            selected_qval_level = 0.001
-        elif selected_pvalue < fdr001:
-            selected_qval = fdr001
-            selected_qval_level = 0.01
-        elif selected_pvalue < fdr005:
-            selected_qval = fdr005
-            selected_qval_level = 0.05
-        else:
-            selected_qval = 1
-            selected_qval_level = 1
-        qvalue.append(round(selected_qval, 4))
-        qvalue_level.append(selected_qval_level)
-
+        
+        q_005.append(fdr005)
+        q_001.append(fdr001)
+        q_0001.append(fdr0001)
+        
         # source add
         selected_source = pathwayDB_sort.iloc[id, 1]
         source.append(selected_source)
 
+    qvalue = statsmodels.stats.multitest.fdrcorrection(pvalue, alpha=0.05, method='indep', is_sorted=False)[1]
+    qvalue_string = [f"{i:.2E}" for i in qvalue]
+    
     # STEP.4 result table
     result_table = pd.DataFrame()
     result_table['pvalue'] = pvalue
     result_table['pvalue_string'] = pvalue_string
-    result_table['qvalue'] = qvalue
-    result_table['qvalue_level'] = qvalue_level
+    result_table['qval'] = qvalue
+    result_table['qvalue'] = qvalue_string
+    
+    result_table['q_005_val'] = q_005
+    result_table['q_001_val'] = q_001
+    result_table['q_0001_val'] = q_0001
+    result_table['q_005'] = [f"{i:.2E}" for i in q_005]
+    result_table['q_001'] = [f"{i:.2E}" for i in q_001]
+    result_table['q_0001'] = [f"{i:.2E}" for i in q_0001]
+
     result_table['pathway'] = pathway
     result_table['source'] = source
     result_table['size'] = size
@@ -116,7 +121,7 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
 
     result_table = result_table[result_table['overlap'] > 1]
     result_table = result_table[result_table['pvalue'] < 0.05]
-    result_table = result_table[result_table['qvalue_level'] <= qValueCutoff]
+    result_table = result_table[result_table['qval'] < result_table[qValueCutoff]]
     
     
     #count DB
@@ -148,7 +153,6 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
         lv4_value = 0
     else:
         lv4_value = int(countTB_lv4.values[0][0])
-    
     
     
     result_table = result_table[result_table['cancerLevel']

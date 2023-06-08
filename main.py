@@ -23,7 +23,7 @@ class ORAInput(BaseModel):
     dbType: Optional[str]
     geneSetType: Optional[str]
     geneSet: Optional[str]
-    qValueCutoff: Optional[float]
+    qValueCutoff: Optional[str]
     cancerLevel: Optional[int]
 
 
