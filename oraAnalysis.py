@@ -130,25 +130,28 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     countTB_lv3 = countTB_df[countTB_df['level'] == 3]
     countTB_lv4 = countTB_df[countTB_df['level'] == 4]
     
+    print(countTB_lv1)
+    print(countTB_lv1['count'].values[0])
+    
     if(countTB_lv1.empty):
         lv1_value = 0
     else:
-        lv1_value = int(countTB_lv1['cancerLevel'].values[0])
+        lv1_value = int(countTB_lv1['level'].values[0])
 
     if(countTB_lv2.empty):
         lv2_value = 0
     else:
-        lv2_value = int(countTB_lv2['cancerLevel'].values[0])
+        lv2_value = int(countTB_lv2['level'].values[0])
 
     if(countTB_lv3.empty):
         lv3_value = 0
     else:
-        lv3_value = int(countTB_lv3['cancerLevel'].values[0])
+        lv3_value = int(countTB_lv3['level'].values[0])
 
     if(countTB_lv4.empty):
         lv4_value = 0
     else:
-        lv4_value = int(countTB_lv4['cancerLevel'].values[0])
+        lv4_value = int(countTB_lv4['level'].values[0])
     
     
     
@@ -160,10 +163,10 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     return {
         "data": result_json,
         "countDB": {
-            "lv1" : lv1_value,
-            "lv2" : lv2_value,
-            "lv3" : lv3_value,
-            "lv4" : lv4_value,
+            "lv1" : int(countTB_lv1['count'].values[0]),
+            "lv2" : int(countTB_lv2['count'].values[0]),
+            "lv3" : int(countTB_lv3['count'].values[0]),
+            "lv4" : int(countTB_lv4['count'].values[0]),
         },
         "matchInfo" : {
             "total" : len(geneSet),
