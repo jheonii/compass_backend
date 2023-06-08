@@ -136,22 +136,22 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     if(countTB_lv1.empty):
         lv1_value = 0
     else:
-        lv1_value = int(countTB_lv1['count'].values[0])
+        lv1_value = int(countTB_lv1['cancerLevel'].values[0])
 
     if(countTB_lv2.empty):
         lv2_value = 0
     else:
-        lv2_value = int(countTB_lv2['count'].values[0])
+        lv2_value = int(countTB_lv2['cancerLevel'].values[0])
 
     if(countTB_lv3.empty):
         lv3_value = 0
     else:
-        lv3_value = int(countTB_lv3['count'].values[0])
+        lv3_value = int(countTB_lv3['cancerLevel'].values[0])
 
     if(countTB_lv4.empty):
         lv4_value = 0
     else:
-        lv4_value = int(countTB_lv4['count'].values[0])
+        lv4_value = int(countTB_lv4['cancerLevel'].values[0])
     
     
     
