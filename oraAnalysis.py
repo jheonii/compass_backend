@@ -130,8 +130,8 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     countTB_lv3 = countTB_df[countTB_df['level'] == 3]
     countTB_lv4 = countTB_df[countTB_df['level'] == 4]
     
-    print(countTB_lv1)
-    print(countTB_lv1['count'].values[0])
+    # print(countTB_lv1)
+    # print(countTB_lv1['count'].values[0])
     
     if(countTB_lv1.empty):
         lv1_value = 0
