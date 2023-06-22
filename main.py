@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 import oraAnalysis
+import oraAnalysis_download
 import cpAnalysis
 
 
@@ -37,6 +38,23 @@ async def analyzeORA(input: ORAInput):
     cancerLevel = dicted_input['cancerLevel']
     data = oraAnalysis.analyze(
         dbType, geneSetType, geneSet, qValueCutoff, cancerLevel)
+    return data
+
+
+# 1-download ORA analysis
+class ORAInputDownload(BaseModel):
+    dbType: str | None = None
+    geneSetType: str | None = None
+    geneSet: str | None = None
+    qValueCutoff: str | None = None
+
+@app.post("/ora_download")
+async def downlaodORA(input: ORAInputDownload):
+    data = oraAnalysis_download.analyze(
+        input.dbType,
+        input.geneSetType, 
+        input.geneSet, 
+        input.qValueCutoff)
     return data
 
 # 2. Cancer prioritization
