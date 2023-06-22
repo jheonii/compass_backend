@@ -43,18 +43,24 @@ async def analyzeORA(input: ORAInput):
 
 # 1-download ORA analysis
 class ORAInputDownload(BaseModel):
-    dbType: str | None = None
-    geneSetType: str | None = None
-    geneSet: str | None = None
-    qValueCutoff: str | None = None
+    dbType: Optional[str]
+    geneSetType: Optional[str]
+    geneSet: Optional[str]
+    qValueCutoff: Optional[str]
 
 @app.post("/ora_download")
 async def downlaodORA(input: ORAInputDownload):
+    dicted_input = dict(input)
+    dbType = dicted_input['dbType']
+    geneSetType = dicted_input['geneSetType']
+    geneSet = dicted_input['geneSet']
+    qValueCutoff = dicted_input['qValueCutoff']
+    
     data = oraAnalysis_download.analyze(
-        input.dbType,
-        input.geneSetType, 
-        input.geneSet, 
-        input.qValueCutoff)
+        dbType,
+        geneSetType, 
+        geneSet, 
+        qValueCutoff)
     return data
 
 # 2. Cancer prioritization
