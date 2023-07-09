@@ -11,7 +11,7 @@ q0001 = pd.read_csv('0.001.csv')
 alias_data = pd.read_csv('gdac_entrez.csv')
 
 
-def analyze(dbType, geneSetType, geneSet, qValueCutoff):
+def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
 
     geneSet = re.sub(r"\s", "", geneSet)
     geneSet = geneSet.split(',')
@@ -36,18 +36,21 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff):
     new_fdr['q005'] = q005_selec
     new_fdr['q001'] = q001_selec
     new_fdr['q0001'] = q0001_selec
-    # new_fdr = new_fdr.fillna(1)
+
 
     # STEP.1 pathway DB
     pathwayDB = pd.read_csv(f"{dbType}.csv")
     pathwayDB = pathwayDB.dropna()
     pathwayDB = pathwayDB.fillna(0)
+    if(inputCancerLevel == '1'):
+        pathwayDB = pathwayDB[pathwayDB['cancer_level'] == 1]
+    elif (inputCancerLevel == '1&2'):
+        pathwayDB = pathwayDB[(pathwayDB['cancer_level'] == 1) | (pathwayDB['cancer_level'] == 2)]
+    elif (inputCancerLevel == '1&2&3'):
+        pathwayDB = pathwayDB[(pathwayDB['cancer_level'] == 1) | (pathwayDB['cancer_level'] == 2) | (pathwayDB['cancer_level'] == 3)]
+    
 
-    # STEP.2 gene symbol or entrez ID
-    pathwayDB_sort = pathwayDB.iloc[:,:]
-    selected_genes = pathwayDB_sort.iloc[:, 1][0].split(';')
-
-    # STEP.3 hypergeom
+    # STEP.2 hypergeom
     pvalue = []
     pvalue_string = []
     qvalue = []
@@ -62,7 +65,7 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff):
     _genes_ = []
 
     for id in range(len(pathwayDB)):
-        selected_genes = pathwayDB_sort.iloc[id, 2]
+        selected_genes = pathwayDB.iloc[id, 2]
         selected_genes = str(selected_genes).split(';')  # string으로 바꿔야 가능
         selected_list = [int(s) for s in selected_genes]
         intersection = list(set(selected_list) & set(geneSet_list))
@@ -71,11 +74,11 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff):
         pvalue.append(selected_pvalue)
         selected_pvalue_string = f"{selected_pvalue:.2E}"
         pvalue_string.append(selected_pvalue_string)
-        selected_pathway = pathwayDB_sort.iloc[id, 0]
+        selected_pathway = pathwayDB.iloc[id, 0]
         pathway.append(selected_pathway)
         size.append(len(selected_list))
         overlap.append(len(intersection))
-        selected_cancerLevel = pathwayDB_sort.iloc[id, 3]
+        selected_cancerLevel = pathwayDB.iloc[id, 3]
         cancerLevel.append(selected_cancerLevel)
 
         # size가 len(selected_list)
@@ -89,17 +92,16 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff):
         q_0001.append(fdr0001)
         
         # source add
-        selected_source = pathwayDB_sort.iloc[id, 1]
+        selected_source = pathwayDB.iloc[id, 1]
         source.append(selected_source)
         
         # gene add
-        
         intersection_str = ','.join([str(i) for i in intersection])
         _genes_.append(intersection_str)
 
     qvalue = statsmodels.stats.multitest.fdrcorrection(pvalue, alpha=0.05, method='indep', is_sorted=False)[1]
     
-    # STEP.4 result table
+    # STEP.3 result table
     result_table = pd.DataFrame()
     result_table['pvalue'] = pvalue
     result_table['qval'] = qvalue
@@ -116,8 +118,8 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff):
     result_table['_genes_'] = _genes_
 
     result_table = result_table[result_table['overlap'] > 1]
-    result_table = result_table[result_table['pvalue'] < 0.05]
     result_table = result_table[result_table['pvalue'] < result_table[qValueCutoff]]
+    result_table = result_table[result_table['qval'] < 0.2]
     
     result_json = result_table.transpose().to_json()
 

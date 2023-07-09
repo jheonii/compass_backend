@@ -12,7 +12,7 @@ alias_data = pd.read_csv('gdac_entrez.csv')
 
 
 def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
-
+    
     geneSet = re.sub(r"\s", "", geneSet)
     geneSet = geneSet.split(',')
 
@@ -27,10 +27,6 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
         
     geneSet_list = alias_data2.loc[intersec, 'entrez'].to_list()
 
-    print(geneSet_list)
-    print(len(geneSet_list),'gensenlist')
-    print(len(geneSet),'total')
-
     # STEP 0.fdr matrix
     lenGL = len(geneSet_list)-1
     q005_selec = q005.iloc[:, lenGL]
@@ -40,12 +36,19 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     new_fdr['q005'] = q005_selec
     new_fdr['q001'] = q001_selec
     new_fdr['q0001'] = q0001_selec
-    # new_fdr = new_fdr.fillna(1)
+
 
     # STEP.1 pathway DB
     pathwayDB = pd.read_csv(f"{dbType}.csv")
     pathwayDB = pathwayDB.dropna()
     pathwayDB = pathwayDB.fillna(0)
+    if(inputCancerLevel == '1'):
+        pathwayDB = pathwayDB[pathwayDB['cancer_level'] == 1]
+    elif (inputCancerLevel == '1&2'):
+        pathwayDB = pathwayDB[(pathwayDB['cancer_level'] == 1) | (pathwayDB['cancer_level'] == 2)]
+    elif (inputCancerLevel == '1&2&3'):
+        pathwayDB = pathwayDB[(pathwayDB['cancer_level'] == 1) | (pathwayDB['cancer_level'] == 2) | (pathwayDB['cancer_level'] == 3)]
+    
 
     # STEP.2 gene symbol or entrez ID
     pathwayDB_sort = pathwayDB.iloc[:,:]
@@ -120,7 +123,6 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     result_table['cancerLevel'] = cancerLevel
 
     result_table = result_table[result_table['overlap'] > 1]
-    result_table = result_table[result_table['pvalue'] < 0.05]
     result_table = result_table[result_table['pvalue'] < result_table[qValueCutoff]]
     
     
@@ -154,9 +156,6 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     else:
         lv4_value = int(countTB_lv4.values[0][0])
     
-    
-    result_table = result_table[result_table['cancerLevel']
-                                == inputCancerLevel]
     result_json = result_table.transpose().to_json()
 
     # return result
