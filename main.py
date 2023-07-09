@@ -3,9 +3,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
+from typing import List
 import oraAnalysis
 import oraAnalysis_download
 import cpAnalysis
+import gpn
+import pandas as pd
 
 
 app = FastAPI()
@@ -83,6 +86,21 @@ async def analyzeORA(input: CPInput):
     return data
 
 
-@app.get("/test")
-async def testAnalyze():
-    return 'data'
+# 3. Gene Pathway Network
+
+class getORAInput(BaseModel):
+    pathway : str
+    overlapGenes : str
+    
+
+@app.post('/network', status_code=200)
+def getGenePathwayNetworkRes(_input: List[getORAInput], pathwayN: int):
+    _dict = [s.dict() for s in _input]
+    df = pd.DataFrame(_dict)
+    result = gpn.getGenePathwayNetwork(df, pathwayN)
+    gene_pathway_network = result['gpd_df2']
+    gene_pathway_table_list= result['gpt_list']
+    return {
+        "gene_pathway_network" : gene_pathway_network.transpose().to_json(),
+        "gene_pathway_table_list" : gene_pathway_table_list.to_json()
+    }

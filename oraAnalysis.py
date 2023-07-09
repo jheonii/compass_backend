@@ -11,6 +11,7 @@ q0001 = pd.read_csv('0.001.csv')
 alias_data = pd.read_csv('gdac_entrez.csv')
 
 
+
 def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     
     geneSet = re.sub(r"\s", "", geneSet)
@@ -67,6 +68,7 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     q_005 = []
     q_001 = []
     q_0001 = []
+    _genes_ = []
 
     for id in range(len(pathwayDB)):
         selected_genes = pathwayDB_sort.iloc[id, 2]
@@ -98,6 +100,10 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
         # source add
         selected_source = pathwayDB_sort.iloc[id, 1]
         source.append(selected_source)
+        
+        # gene add
+        intersection_str = ','.join([str(i) for i in intersection])
+        _genes_.append(intersection_str)
 
     qvalue = statsmodels.stats.multitest.fdrcorrection(pvalue, alpha=0.05, method='indep', is_sorted=False)[1]
     qvalue_string = [f"{i:.2E}" for i in qvalue]
@@ -121,6 +127,7 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     result_table['size'] = size
     result_table['overlap'] = overlap
     result_table['cancerLevel'] = cancerLevel
+    result_table['entrez_id'] = _genes_
 
     result_table = result_table[result_table['overlap'] > 1]
     result_table = result_table[result_table['pvalue'] < result_table[qValueCutoff]]

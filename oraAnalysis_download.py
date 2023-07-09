@@ -26,6 +26,9 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
         intersec = list(set(alias_data['entrez'].to_list()) & set(geneSet_list))
         
     geneSet_list = alias_data2.loc[intersec, 'entrez'].to_list()
+    alias_data_df = alias_data[alias_data['entrez'].isin(geneSet_list)]
+    alias_data_df = alias_data_df.astype(str)
+    mapping_dict = alias_data_df.set_index('entrez')['symbol'].to_dict()
 
     # STEP 0.fdr matrix
     lenGL = len(geneSet_list)-1
@@ -102,9 +105,10 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     qvalue = statsmodels.stats.multitest.fdrcorrection(pvalue, alpha=0.05, method='indep', is_sorted=False)[1]
     
     # STEP.3 result table
+    
     result_table = pd.DataFrame()
     result_table['pvalue'] = pvalue
-    result_table['qval'] = qvalue
+    result_table['qvalue'] = qvalue
     
     result_table['q_005_val'] = q_005
     result_table['q_001_val'] = q_001
@@ -115,11 +119,14 @@ def analyze(dbType, geneSetType, geneSet, qValueCutoff, inputCancerLevel):
     result_table['size'] = size
     result_table['overlap'] = overlap
     result_table['cancerLevel'] = cancerLevel
-    result_table['_genes_'] = _genes_
+    result_table['entrez_id'] = _genes_
+    result_table['gene_symbol'] = result_table['entrez_id'].apply(lambda x: ','.join(mapping_dict[i] for i in x.split(',') if i in mapping_dict))
+
+
 
     result_table = result_table[result_table['overlap'] > 1]
     result_table = result_table[result_table['pvalue'] < result_table[qValueCutoff]]
-    result_table = result_table[result_table['qval'] < 0.2]
+    result_table = result_table[result_table['qvalue'] < 0.2]
     
     result_json = result_table.transpose().to_json()
 
